@@ -1,0 +1,37 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+
+# Load dataset (replace with your file path or use a sample dataset)
+data = pd.read_csv("admission_data.csv")
+
+# Features and labels
+X = data[["GRE Score", "TOEFL Score", "University Rating", "SOP", "LOR", "CGPA", "Research"]]
+y = (data["Chance of Admit "] >= 0.8).astype(int)  # 1 if high chance, 0 otherwise
+
+# Normalize features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# Logistic Regression
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Predicting new data
+def predict_admission(gre, toefl, rating, sop, lor, cgpa, research):
+    input_data = [[gre, toefl, rating, sop, lor, cgpa, research]]
+    input_scaled = scaler.transform(input_data)
+    prediction = model.predict(input_scaled)
+    probability = model.predict_proba(input_scaled)[0][1]
+    
+    if prediction[0] == 1:
+        print(f"🎓 High chance of admission ({probability*100:.2f}%) ✅")
+    else:
+        print(f"⚠️ Low chance of admission ({probability*100:.2f}%) ❌")
+
+# Example usage
+predict_admission(325, 110, 4, 4.5, 4.5, 9.2, 1)
